@@ -35,6 +35,9 @@ import org.quantumbadger.redreader.http.FailedRequestBody;
 import org.quantumbadger.redreader.http.HTTPBackend;
 import org.quantumbadger.redreader.image.RedgifsAPIV2;
 import org.quantumbadger.redreader.reddit.api.RedditOAuth;
+import org.quantumbadger.redreader.reddit.api.RedlibSource;
+import org.quantumbadger.redreader.reddit.api.ArcticShiftRequest;
+import org.quantumbadger.redreader.reddit.api.RedditWebSessionRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +56,8 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 	private final AtomicBoolean mFinished = new AtomicBoolean(false);
 	private static final AtomicBoolean resetUserCredentials = new AtomicBoolean(false);
 	private final HTTPBackend.Request mRequest;
+	private final RedlibSource mRedlibSource;
+	private final IllegalArgumentException mSourceError;
 
 	public CacheDownload(
 			final CacheRequest initiator,
@@ -72,11 +77,32 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 			session = UUID.randomUUID();
 		}
 
-		mRequest = HTTPBackend.getBackend().prepareRequest(
-				initiator.context,
-				new HTTPBackend.RequestDetails(
-						mInitiator.url,
-						mInitiator.requestBody.asNullable()));
+		RedlibSource source = null;
+		HTTPBackend.Request request = null;
+		IllegalArgumentException configurationError = null;
+		try {
+			if(initiator.webSession != null) {
+				request = new RedditWebSessionRequest(initiator.context, initiator.url,
+						initiator.requestBody.isPresent(), initiator.webSession,
+						HTTPBackend.getBackend());
+			} else if(initiator.queueType == CacheRequest.DownloadQueueType.REDDIT_API
+					&& initiator.arcticShift) {
+				request = new ArcticShiftRequest(initiator.context, initiator.url,
+						initiator.requestBody.isPresent(), HTTPBackend.getBackend());
+			} else {
+				source = initiator.queueType == CacheRequest.DownloadQueueType.REDDIT_API
+						&& initiator.user.isAnonymous() ? RedlibSource.configured() : null;
+				request = HTTPBackend.getBackend().prepareRequest(initiator.context,
+						new HTTPBackend.RequestDetails(
+								source == null ? mInitiator.url : source.rewrite(mInitiator.url),
+								mInitiator.requestBody.asNullable()));
+			}
+		} catch(final IllegalArgumentException error) {
+			configurationError = error;
+		}
+		mRedlibSource = source;
+		mRequest = request;
+		mSourceError = configurationError;
 	}
 
 	// Returns true the first time it is called, so that only one outcome (success,
@@ -96,7 +122,9 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 		new Thread() {
 			@Override
 			public void run() {
-				mRequest.cancel();
+				if(mRequest != null) {
+					mRequest.cancel();
+				}
 				mInitiator.notifyFailure(General.getGeneralErrorForFailure(
 						mInitiator.context,
 						CacheRequest.RequestFailureType.CANCELLED,
@@ -111,6 +139,14 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 	public void doDownload() {
 
 		if(mCancelled) {
+			return;
+		}
+		if(mSourceError != null) {
+			if(markFinished()) {
+				mInitiator.notifyFailure(General.getGeneralErrorForFailure(
+						mInitiator.context, CacheRequest.RequestFailureType.MALFORMED_URL,
+						mSourceError, null, mInitiator.url, Optional.empty()));
+			}
 			return;
 		}
 
@@ -200,8 +236,22 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 	}
 
 	private void performDownload(final HTTPBackend.Request request) {
+		if(mRedlibSource != null) {
+			if(mInitiator.requestBody.isPresent()) {
+				if(markFinished()) {
+					mInitiator.notifyFailure(General.getGeneralErrorForFailure(
+							mInitiator.context, CacheRequest.RequestFailureType.CONNECTION,
+							new IOException("The Redlib data source supports reading only"),
+							405, mInitiator.url, Optional.empty()));
+				}
+				return;
+			}
+			request.addHeader("X-Redlib-Key", mRedlibSource.apiKey());
+		}
 
-		if(mInitiator.queueType == CacheRequest.DownloadQueueType.REDDIT_API) {
+		if(mInitiator.queueType == CacheRequest.DownloadQueueType.REDDIT_API
+				&& mRedlibSource == null && !(request instanceof ArcticShiftRequest)
+				&& !(request instanceof RedditWebSessionRequest)) {
 
 			if(resetUserCredentials.getAndSet(false)) {
 				mInitiator.user.setAccessToken(null);
@@ -522,7 +572,7 @@ public final class CacheDownload extends PrioritisedCachedThreadPool.Task {
 
 		try {
 			return manager.openNewCacheFile(
-					mInitiator.url,
+					mInitiator.cacheUrl,
 					mInitiator.user,
 					mInitiator.fileType,
 					session,

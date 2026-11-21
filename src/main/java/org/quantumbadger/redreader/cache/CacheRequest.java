@@ -65,6 +65,9 @@ public final class CacheRequest implements Comparable<CacheRequest> {
 	}
 
 	public final UriString url;
+	public final UriString cacheUrl;
+	public final boolean arcticShift;
+	public final org.quantumbadger.redreader.reddit.api.RedditWebSession.Config webSession;
 	public final RedditAccount user;
 	public final UUID requestSession;
 
@@ -251,6 +254,16 @@ public final class CacheRequest implements Comparable<CacheRequest> {
 		}
 
 		this.url = url;
+		arcticShift = queueType == DownloadQueueType.REDDIT_API && user.isAnonymous()
+				&& org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled();
+		webSession = queueType == DownloadQueueType.REDDIT_API && user.isAnonymous()
+				&& org.quantumbadger.redreader.reddit.api.RedditWebSession.enabled()
+				? org.quantumbadger.redreader.reddit.api.RedditWebSession.configured(context)
+				: null;
+		cacheUrl = webSession != null && url != null
+				? org.quantumbadger.redreader.reddit.api.RedditWebSession.cacheUrl(url, webSession)
+				: arcticShift && url != null
+				? UriString.from(url.toUri().buildUpon().fragment("arctic-shift")) : url;
 		this.user = user;
 		this.requestSession = requestSession;
 		this.priority = priority;

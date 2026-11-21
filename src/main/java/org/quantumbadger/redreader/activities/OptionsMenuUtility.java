@@ -1123,6 +1123,13 @@ public final class OptionsMenuUtility {
 		}
 
 		final SubMenu sortPosts = addSortSubMenu(menu, R.string.options_sort_posts, showAsAction);
+		if(org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled()
+				&& RedditAccountManager.getInstance(activity).getDefaultAccount().isAnonymous()) {
+			addSort(activity, sortPosts, PostSort.NEW);
+			sortPosts.setGroupCheckable(Menu.NONE, true, true);
+			return;
+		}
+
 
 		addSort(activity, sortPosts, PostSort.HOT);
 		addSort(activity, sortPosts, PostSort.NEW);
@@ -1152,6 +1159,13 @@ public final class OptionsMenuUtility {
 		}
 
 		final SubMenu sortPosts = addSortSubMenu(menu, R.string.options_sort_posts, showAsAction);
+		if(org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled()
+				&& RedditAccountManager.getInstance(activity).getDefaultAccount().isAnonymous()) {
+			addSort(activity, sortPosts, PostSort.NEW);
+			sortPosts.setGroupCheckable(Menu.NONE, true, true);
+			return;
+		}
+
 
 		addSortsToNewSubmenu(activity, sortPosts, RELEVANCE_SORTS);
 		addSortsToNewSubmenu(activity, sortPosts, NEW_SORTS);

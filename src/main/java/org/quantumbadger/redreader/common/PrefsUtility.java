@@ -61,6 +61,9 @@ import java.util.Objects;
 import java.util.Set;
 
 public final class PrefsUtility {
+	public static boolean fushiTapLookupEnabled() {
+		return getBoolean(R.string.pref_fushi_tap_lookup_key, true);
+	}
 
 	@NonNull public static final String PREF_LANGUAGE_SETTING_MIGRATED
 			= "pref_language_setting_migrated";
@@ -131,7 +134,8 @@ public final class PrefsUtility {
 	}
 
 	public static boolean isRefreshRequired(final Context context, final String key) {
-		return key.startsWith("pref_appearance")
+		return key.equals(context.getString(R.string.pref_read_source_key))
+				|| key.startsWith("pref_appearance")
 				|| key.equals(context.getString(R.string.pref_behaviour_fling_post_left_key))
 				|| key.equals(context.getString(R.string.pref_behaviour_fling_post_right_key))
 				|| key.equals(context.getString(R.string.pref_behaviour_nsfw_key))
@@ -997,7 +1001,7 @@ public final class PrefsUtility {
 	public static PostTapAction pref_behaviour_post_tap_action() {
 		return PostTapAction.valueOf(StringUtils.asciiUppercase(getString(
 				R.string.pref_behaviour_post_tap_action_key,
-				"link"
+				"comments"
 		)));
 	}
 

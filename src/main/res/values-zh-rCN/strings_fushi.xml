@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_read_source_title">阅读数据源</string>
+    <string name="pref_read_source_summary">Arctic Shift 按时间倒序读取归档，评论和票数可能有延迟。Reddit 和 Redlib 使用实时数据。切换后请刷新列表。</string>
+    <string-array name="read_source_entries">
+        <item>Arctic Shift 归档</item>
+        <item>Reddit / 已配置的 Redlib 服务器</item>
+        <item>Reddit 网页登录会话（只读）</item>
+    </string-array>
+    <string name="arctic_archive_subtitle">Arctic Shift 归档 · 最新优先</string>
+    <string name="pref_redlib_url_title">Redlib 服务器地址</string>
+    <string name="pref_redlib_url_summary">匿名阅读时使用此服务器，留空则直接连接 Reddit。</string>
+    <string name="pref_redlib_api_key_title">Redlib 服务器密钥</string>
+    <string name="pref_fushi_tap_lookup_title">点击单词使用 Fushi 查词</string>
+    <string name="pref_fushi_tap_lookup_summary">点击标题、正文和评论中的文字查词，保留完整上下文供 Fushi 提取制卡句子，返回时清除高亮。</string>
+    <string name="fushi_lookup_unavailable">请安装或启用 Fushi 后再查词。</string>
+    <string name="redlib_invalid_address">请输入 HTTP 或 HTTPS 服务器地址，地址中不能包含账号、查询参数或片段。</string>
+    <string name="pref_web_session_title">Reddit 网页登录 Cookie</string>
+    <string name="pref_web_session_summary">填写自己的 reddit_session Cookie，加密保存在本机，不包含在设置备份中，不会发送到 Redlib 或 Arctic Shift。</string>
+    <string name="web_session_instructions">粘贴 reddit_session 的值或浏览器 Cookie 请求头（不是整条 cURL 命令），只保存其中的 reddit_session。将阅读数据源切换为网页登录会话，并在 RedReader 中保持匿名账号。主菜单“首页”读取该会话的订阅首页。排序使用 Reddit 真实接口，部分可能返回 403。会话过期后需手动更新；修改后请重新打开或刷新列表。</string>
+    <string name="web_session_configured">已在本机保存会话，点击可替换或清除。选择网页会话数据源并刷新后，“首页”读取该账号的订阅流。</string>
+    <string name="web_session_subtitle">Reddit 网页会话 · 只读</string>
+    <string name="web_session_missing">请先到设置 → 网络中填写 Reddit 网页登录 Cookie。</string>
+    <string name="web_session_read_only">网页会话模式仅支持阅读，发帖、投票等操作需使用 OAuth 账号。</string>
+    <string name="web_session_invalid">请填写 reddit_session 的值或 Cookie 请求头，不要包含换行。</string>
+    <string name="web_session_save_failed">无法安全保存登录会话，请重试。此功能需要 Android 6 或以上版本。</string>
+    <string name="web_session_clear">清除会话</string>
+</resources>

@@ -286,7 +286,20 @@ public final class CacheManager {
 	}
 
 	public List<CacheEntry> getSessions(final UriString url, final RedditAccount user) {
-		return dbManager.select(url, user.username, null);
+		final UriString cacheUrl;
+		if(user.isAnonymous()
+				&& "oauth.reddit.com".equals(url.toUri().getHost())
+				&& org.quantumbadger.redreader.reddit.api.RedditWebSession.enabled()) {
+			cacheUrl = org.quantumbadger.redreader.reddit.api.RedditWebSession.cacheUrl(url,
+					org.quantumbadger.redreader.reddit.api.RedditWebSession.configured(context));
+		} else if(user.isAnonymous()
+				&& "oauth.reddit.com".equals(url.toUri().getHost())
+				&& org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled()) {
+			cacheUrl = UriString.from(url.toUri().buildUpon().fragment("arctic-shift"));
+		} else {
+			cacheUrl = url;
+		}
+		return dbManager.select(cacheUrl, user.username, null);
 	}
 
 	public File getPreferredCacheLocation() {
@@ -675,7 +688,7 @@ public final class CacheManager {
 			} else {
 
 				final List<CacheEntry> result = dbManager.select(
-						request.url,
+						request.cacheUrl,
 						request.user.username,
 						request.requestSession);
 

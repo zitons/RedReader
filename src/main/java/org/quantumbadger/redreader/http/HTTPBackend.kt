@@ -26,9 +26,11 @@ import org.quantumbadger.redreader.http.okhttp.OKHTTPBackend
 import java.io.InputStream
 
 abstract class HTTPBackend {
-    data class RequestDetails(
+    data class RequestDetails @JvmOverloads constructor(
         val url: UriString,
-        val requestBody: HTTPRequestBody?
+        val requestBody: HTTPRequestBody?,
+        val followRedirects: Boolean = true,
+        val userAgent: String? = null
     )
 
     interface Request {

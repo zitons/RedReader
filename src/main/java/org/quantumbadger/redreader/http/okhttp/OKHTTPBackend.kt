@@ -166,7 +166,7 @@ class OKHTTPBackend private constructor() : HTTPBackend() {
 	override fun prepareRequest(context: Context, details: RequestDetails): Request {
 		val reqBuilder: OkHTTPRequest.Builder = OkHTTPRequest.Builder()
 
-		reqBuilder.header("User-Agent", Constants.ua(context))
+		reqBuilder.header("User-Agent", details.userAgent ?: Constants.ua(context))
 
 		val requestBody = details.requestBody
 
@@ -211,7 +211,9 @@ class OKHTTPBackend private constructor() : HTTPBackend() {
 
 		return object : Request {
 			override fun executeInThisThread(listener: Listener) {
-				val call = mClient.newCall(reqBuilder.build())
+				val client = if (details.followRedirects) mClient else
+                    mClient.newBuilder().followRedirects(false).followSslRedirects(false).build()
+				val call = client.newCall(reqBuilder.build())
 				callRef.set(call)
 
 				if (cancelled.get()) {

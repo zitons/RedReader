@@ -56,6 +56,7 @@ public final class FeatureFlagHandler {
 		MAIN_MENU_FIND_SUBREDDIT_FEATURE("mainMenuFindSubreddit"),
 		OPEN_COMMENT_EXTERNALLY_FEATURE("openCommentExternallyFeature"),
 		POST_TITLE_TAP_ACTION_FEATURE("postTitleTapActionFeature"),
+		POST_DETAILS_TAP_DEFAULT("postDetailsTapDefault"),
 		DEFAULT_PREF_VIDEO_PLAYBACK_CONTROLS("defaultPrefVideoPlaybackControls"),
 		DEFAULT_PREF_CUSTOM_TABS("defaultPrefCustomTabs"),
 		CROSSPOST_ORIGIN_MENU_ITEM("crosspostOriginMenuItem"),
@@ -290,6 +291,13 @@ public final class FeatureFlagHandler {
 							"comments"
 					).apply();
 				}
+			}
+
+			if(getAndSetFeatureFlag(prefs, FeatureFlag.POST_DETAILS_TAP_DEFAULT)
+					== FeatureFlagStatus.UPGRADE_NEEDED) {
+				prefs.edit().putString(
+						context.getString(R.string.pref_behaviour_post_tap_action_key),
+						"comments").apply();
 			}
 
 			if(getAndSetFeatureFlag(prefs, FeatureFlag.DEFAULT_PREF_VIDEO_PLAYBACK_CONTROLS)

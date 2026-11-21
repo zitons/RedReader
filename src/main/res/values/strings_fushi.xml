@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_read_source_key" translatable="false">pref_read_source</string>
+    <string name="pref_read_source_title">Reading data source</string>
+    <string name="pref_read_source_summary">Arctic Shift reads archived posts newest first. Comments and counts may lag behind Reddit. Reddit and Redlib use live data. Refresh after switching.</string>
+    <string-array name="read_source_entries">
+        <item>Arctic Shift archive</item>
+        <item>Reddit / configured Redlib server</item>
+        <item>Reddit web session (read only)</item>
+    </string-array>
+    <string-array name="read_source_values" translatable="false">
+        <item>arctic</item>
+        <item>reddit</item>
+        <item>web</item>
+    </string-array>
+    <string name="arctic_archive_subtitle">Arctic Shift archive · newest first</string>
+    <string name="pref_redlib_url_key" translatable="false">pref_redlib_url</string>
+    <string name="pref_redlib_url_title">Redlib server address</string>
+    <string name="pref_redlib_url_summary">Use this server for anonymous reading. Leave empty to use Reddit directly.</string>
+    <string name="pref_redlib_api_key_key" translatable="false">pref_redlib_api_key</string>
+    <string name="pref_redlib_api_key_title">Redlib server key</string>
+    <string name="pref_fushi_tap_lookup_key" translatable="false">pref_fushi_tap_lookup</string>
+    <string name="pref_fushi_tap_lookup_title">Tap words to look up in Fushi</string>
+    <string name="pref_fushi_tap_lookup_summary">Tap words in titles, posts and comments to open Fushi with full sentence context. Highlight clears when you return.</string>
+    <string name="fushi_lookup_unavailable">Install or enable Fushi to look up words.</string>
+    <string name="redlib_invalid_address">Enter an HTTP or HTTPS server address without credentials, query parameters or a fragment.</string>
+    <string name="pref_web_session_title">Reddit web session Cookie</string>
+    <string name="pref_web_session_summary">Set your own reddit_session Cookie. Stored encrypted on this device, excluded from settings backups. Never sent to Redlib or Arctic Shift.</string>
+    <string name="web_session_instructions">Paste the reddit_session value or a browser Cookie header (not the whole cURL command). Only reddit_session is retained. Select Reddit web session as the reading source and use the anonymous account in RedReader. Front page uses this session home subscribed home feed. Sorting uses real Reddit routes; some may return 403. Expired sessions must be replaced manually. Refresh or reopen a list after changes.</string>
+    <string name="web_session_configured">Session saved on this device. Tap to replace or clear it. Select the web session data source and refresh. Front page reads the session home home feed.</string>
+    <string name="web_session_subtitle">Reddit web session - read only</string>
+    <string name="web_session_missing">Configure your Reddit web session Cookie in Settings / Network first.</string>
+    <string name="web_session_read_only">Web session mode supports reading only. Use an OAuth account for write actions.</string>
+    <string name="web_session_invalid">Enter a reddit_session value or Cookie header without line breaks.</string>
+    <string name="web_session_save_failed">Could not save the session securely. Please try again.</string>
+    <string name="web_session_clear">Clear session</string>
+</resources>

@@ -23,17 +23,55 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
 import android.view.MotionEvent;
+import android.view.GestureDetector;
+import android.view.View;
+import android.view.ViewParent;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import org.quantumbadger.redreader.common.PrefsUtility;
+import org.quantumbadger.redreader.common.FushiLookup;
 
 public class LinkifiedTextView extends AppCompatTextView {
 
 	private final AppCompatActivity mActivity;
+	private int mLookupOffset = -1;
+	private boolean mLookupGesture;
+	private final GestureDetector mLookupDetector;
 
 	public LinkifiedTextView(final AppCompatActivity activity) {
 		super(activity);
 		mActivity = activity;
+		mLookupDetector = new GestureDetector(activity,
+				new GestureDetector.SimpleOnGestureListener() {
+					@Override
+					public boolean onDown(final MotionEvent event) {
+						return true;
+					}
+
+					@Override
+					public boolean onSingleTapUp(final MotionEvent event) {
+						if(mLookupOffset >= 0) {
+							performClick();
+							FushiLookup.open(mActivity, LinkifiedTextView.this, mLookupOffset);
+						}
+						return true;
+					}
+
+					@Override
+					public void onLongPress(final MotionEvent event) {
+						mLookupOffset = -1;
+						if(performLongClick()) {
+							return;
+						}
+						ViewParent parent = getParent();
+						while(parent instanceof View) {
+							if(((View)parent).performLongClick()) {
+								return;
+							}
+							parent = parent.getParent();
+						}
+					}
+				});
 	}
 
 	public AppCompatActivity getActivity() {
@@ -44,6 +82,30 @@ public class LinkifiedTextView extends AppCompatTextView {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		final CharSequence text = getText();
+		final int action = event.getActionMasked();
+		if(action == MotionEvent.ACTION_DOWN) {
+			FushiLookup.clearHighlight();
+			mLookupGesture = false;
+			mLookupOffset = PrefsUtility.fushiTapLookupEnabled()
+					? FushiLookup.characterAt(this, event.getX(), event.getY()) : -1;
+			if(mLookupOffset >= 0 && text instanceof Spannable
+					&& ((Spannable)text).getSpans(mLookupOffset, mLookupOffset,
+							ClickableSpan.class).length > 0) {
+				mLookupOffset = -1;
+			}
+			mLookupGesture = mLookupOffset >= 0;
+		}
+		if(mLookupGesture) {
+			if(event.getPointerCount() > 1) {
+				mLookupOffset = -1;
+			}
+			mLookupDetector.onTouchEvent(event);
+			if(action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				mLookupGesture = false;
+				mLookupOffset = -1;
+			}
+			return true;
+		}
 
 		if(!(text instanceof Spannable)) {
 			return false;
@@ -55,8 +117,6 @@ public class LinkifiedTextView extends AppCompatTextView {
 		}
 
 		final Spannable buffer = (Spannable)text;
-
-		final int action = event.getAction();
 
 		if(action == MotionEvent.ACTION_UP ||
 				action == MotionEvent.ACTION_DOWN) {
@@ -70,6 +130,9 @@ public class LinkifiedTextView extends AppCompatTextView {
 			y += getScrollY();
 
 			final Layout layout = getLayout();
+			if(layout == null) {
+				return false;
+			}
 			final int line = layout.getLineForVertical(y);
 			final int off = layout.getOffsetForHorizontal(line, x);
 

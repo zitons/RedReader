@@ -292,6 +292,7 @@ public final class RedditPostView extends FlingableItemView
 			mCommentsButton.setOnClickListener(v -> fragmentParent.onPostCommentsSelected(mPost));
 		}
 
+		org.quantumbadger.redreader.common.FushiLookup.enableOnTitle(activity, title);
 		title.setTextSize(
 				TypedValue.COMPLEX_UNIT_PX,
 				title.getTextSize() * titleFontScale);

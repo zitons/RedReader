@@ -18,6 +18,11 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<CheckBoxPreference
+			android:title="@string/pref_fushi_tap_lookup_title"
+			android:key="@string/pref_fushi_tap_lookup_key"
+			android:summary="@string/pref_fushi_tap_lookup_summary"
+			android:defaultValue="true"/>
 
     <CheckBoxPreference android:title="@string/pref_behaviour_skiptofrontpage_title"
                         android:key="@string/pref_behaviour_skiptofrontpage_key"
@@ -133,7 +138,7 @@
 						android:key="@string/pref_behaviour_post_tap_action_key"
 						android:entries="@array/pref_behaviour_post_tap_action_items"
 						android:entryValues="@array/pref_behaviour_post_tap_action_return"
-						android:defaultValue="link"/>
+						android:defaultValue="comments"/>
 
     </PreferenceCategory>
 

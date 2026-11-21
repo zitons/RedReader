@@ -28,6 +28,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.text.InputType;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,6 +68,7 @@ import org.quantumbadger.redreader.common.time.TimeDuration;
 import org.quantumbadger.redreader.common.time.TimestampUTC;
 import org.quantumbadger.redreader.receivers.NewMessageChecker;
 import org.quantumbadger.redreader.reddit.prepared.RedditChangeDataManager;
+import org.quantumbadger.redreader.reddit.api.RedlibSource;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -165,6 +168,7 @@ public final class SettingsFragment extends PreferenceFragmentCompat {
 		PrefsUtility.applyLanguageSetting();
 
 		addPreferencesFromResource(resource);
+		WebSessionSettings.bind(this);
 
 		final int[] listPrefsToUpdate = {
 				R.string.pref_appearance_twopane_key,
@@ -301,6 +305,32 @@ public final class SettingsFragment extends PreferenceFragmentCompat {
 				}
 				return true;
 			});
+		}
+
+		{
+			final EditTextPreference server =
+					findPreference(getString(R.string.pref_redlib_url_key));
+			if(server != null) {
+				server.setOnPreferenceChangeListener((preference, value) -> {
+					final String address = value == null ? "" : value.toString().trim();
+					try {
+						if(!address.isEmpty()) {
+							new RedlibSource(address, "");
+						}
+						return true;
+					} catch(final IllegalArgumentException error) {
+						Toast.makeText(requireContext(), R.string.redlib_invalid_address,
+								Toast.LENGTH_SHORT).show();
+						return false;
+					}
+				});
+			}
+			final EditTextPreference serverKey =
+					findPreference(getString(R.string.pref_redlib_api_key_key));
+			if(serverKey != null) {
+				serverKey.setOnBindEditTextListener(edit -> edit.setInputType(
+						InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+			}
 		}
 
 		{

@@ -131,6 +131,10 @@ public class PostListingActivity extends RefreshableActivity
 				}
 			}
 
+			if(org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled()
+					&& RedditAccountManager.getInstance(this).getDefaultAccount().isAnonymous()) {
+				controller.setSort(PostSort.NEW);
+			}
 			setTitle(url.humanReadableName(this, false));
 
 			setBaseActivityListing(R.layout.main_single);
@@ -179,6 +183,14 @@ public class PostListingActivity extends RefreshableActivity
 
 		final RedditAccount user = RedditAccountManager.getInstance(this)
 				.getDefaultAccount();
+		if(getSupportActionBar() != null
+				&& org.quantumbadger.redreader.reddit.api.ArcticShiftRequest.enabled()
+				&& user.isAnonymous()) {
+			getSupportActionBar().setSubtitle(R.string.arctic_archive_subtitle);
+		} else if(getSupportActionBar() != null && user.isAnonymous()
+				&& org.quantumbadger.redreader.reddit.api.RedditWebSession.enabled()) {
+			getSupportActionBar().setSubtitle(R.string.web_session_subtitle);
+		}
 		final SubredditSubscriptionState
 				subredditSubscriptionState;
 		final RedditSubredditSubscriptionManager subredditSubscriptionManager
